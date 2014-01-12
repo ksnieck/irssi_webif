@@ -3,14 +3,14 @@ use warnings;
 use Fcntl;
 use Mojolicious::Lite;
 
-my $rd_fifo = "/home/ksnieckus/.irssi/web_if_fifo_wr";
-my $wr_fifo = "/home/ksnieckus/.irssi/web_if_fifo_rd";
+my $rd_fifo = $ENV{'HOME'} . "/.irssi/web_if_fifo_wr";
+my $wr_fifo = $ENV{'HOME'} . "/.irssi/web_if_fifo_rd";
 
 any '/' => sub {
     my $self = shift;
     $self->render('index');
     my $fh;
-    sysopen($fh, '/home/ksnieckus/.irssi/web_if_fifo_rd', O_NONBLOCK | O_WRONLY);
+    sysopen($fh, $ENV{'HOME'} . '/.irssi/web_if_fifo_rd', O_NONBLOCK | O_WRONLY);
     print $fh $self->param('text');
     close $fh;
 };
@@ -30,7 +30,7 @@ websocket '/echo' => sub {
      my $id = Mojo::IOLoop->recurring(1 => sub {
             my $msg;
             my $fh;
-            open($fh, "<", '/home/ksnieckus/.irssi/web_if_screen');
+            open($fh, "<", $ENV{'HOME'} . '/.irssi/web_if_screen');
             foreach (<$fh>) {
                 $msg->{msg} = $_;
                 $self->send({json => $msg});
