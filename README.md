@@ -8,7 +8,8 @@ super alpha, paths are still hard coded and shit
 setup
 -----
 
-$ cp webif_irssi.pl ~/.irssi/scripts/autorun
+$ cp webif_irssi.pl ~/.irssi/scripts
+$ ln -s ~/.irssi/scripts/webif_irssi.pl ~/.irssi/scripts/autorun
 
 /script load webif_irssi.pl
 
