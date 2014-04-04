@@ -19,29 +19,34 @@ websocket '/echo' => sub {
     my $self = shift;
 
     $self->on(json => sub {
-            my ($self, $hash) = @_;
-            my $fh;
-            sysopen($fh, ">", '/home/ksnieckus/.irssi/web_if_fifo_rd');
-            print $fh $hash->{msg};
-            close $fh;
-        });
+        my ($self, $hash) = @_;
+        my $fh;
+        sysopen($fh, ">", '/home/ksnieckus/.irssi/web_if_fifo_rd');
+        print $fh $hash->{msg};
+        close $fh;
+    });
+
+    $self->on(message => sub {
+        my ($self, $msg) = @_;
+        print $msg."\n";
+    });
 
     # Start recurring timer
-     my $id = Mojo::IOLoop->recurring(1 => sub {
-            my $msg;
-            my $fh;
-            open($fh, "<", $ENV{'HOME'} . '/.irssi/web_if_screen');
-            foreach (<$fh>) {
-                $msg->{msg} = $_;
-                $self->send({json => $msg});
-            }
-            close $fh;
-         });
+    my $id = Mojo::IOLoop->recurring(1 => sub {
+        my $msg;
+        my $fh;
+        open($fh, "<", $ENV{'HOME'} . '/.irssi/web_if_screen');
+        foreach (<$fh>) {
+            $msg->{msg} = $_;
+            $self->send({json => $msg});
+        }
+        close $fh;
+    });
 
-     # Stop recurring timer
-     $self->on(finish => sub {
-             Mojo::IOLoop->remove($id);
-         });
+    # Stop recurring timer
+    $self->on(finish => sub {
+        Mojo::IOLoop->remove($id);
+    });
 };
 
 app->start;
@@ -75,9 +80,7 @@ function insert() {
 
 
 <style type="text/css">
-body
-{
-}
+body {}
 
 #buffer{
     position:absolute;
@@ -99,21 +102,19 @@ body
    bottom:0;
    font-size: 14px;
    font-family:monospace;
-   }
+}
+
 #input {
    width: 100%;
-   }
-
+}
 </style>
 
 </head>
 <body>
 <div id="buffer"></div>
 <div id="inputarea">
-    %= form_for '/' => (method => 'POST') => begin
-        %= text_field 'text'
-        %= submit_button '>'
-    % end
+    %= text_field 'text'
+    %= input_tag 'submit', type => 'button', value => 'send'
 </body>
 </html>
 
